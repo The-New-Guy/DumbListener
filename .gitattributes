@@ -1,0 +1,32 @@
+# Turn on CRLF conversion (in case someone has the default turned off)
+* text=auto
+
+# PowerShell modules
++*.psm1 text
++*.psd1 text
+*.psm1 diff=astextplain
+*.psd1 diff=astextplain
+
+# Standard to msysgit
+*.doc   diff=astextplain
+*.DOC   diff=astextplain
+*.docx  diff=astextplain
+*.DOCX  diff=astextplain
+*.dot   diff=astextplain
+*.DOT   diff=astextplain
+*.pdf   diff=astextplain
+*.PDF   diff=astextplain
+*.rtf   diff=astextplain
+*.RTF   diff=astextplain
+
+# Custom for Visual Studio
+*.cs     diff=csharp
+
+# Turns out this may actually cause silent issues: http://haacked.com/archive/2014/04/16/csproj-merge-conflicts/
+# If you are willing to take the risk (they're just project files) and perfer not to have additional merge conflicts
+# just because you added a file to the project then uncomment the lines below.
+#*.sln    merge=union
+#*.csproj merge=union
+#*.vbproj merge=union
+#*.fsproj merge=union
+#*.dbproj merge=union
