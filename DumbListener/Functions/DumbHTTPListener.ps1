@@ -101,12 +101,15 @@ function Start-DumbHTTPListener {
 
     begin {
 
+        # We want to stop on all errors.
+        $ErrorActionPreference = 'Stop'
+
         # The user running starting the listener.
         $CurrentPrincipal = New-Object Security.Principal.WindowsPrincipal( [Security.Principal.WindowsIdentity]::GetCurrent())
 
         # We must be an admin to register an listener.
         if ( -not ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))) {
-            Write-Error 'This script must be executed from an elevated PowerShell session' -ErrorAction 'Stop'
+            Write-Error 'This script must be executed from an elevated PowerShell session'
         }
 
         # Create the listener.
@@ -117,8 +120,6 @@ function Start-DumbHTTPListener {
     }
 
     process {
-
-        $ErrorActionPreference = 'Stop'
 
         # Add a slash to the end of the URL to listen for.
         if ($Url.Length -gt 0 -and -not $Url.EndsWith('/')) {
@@ -133,13 +134,13 @@ function Start-DumbHTTPListener {
 
             # Get certificate and list of DNS names that can be used with the certificate.
             $cert = Get-ChildItem -Recurse Cert:\LocalMachine | Where-Object { $_.Thumbprint -eq $CertificateThumbprint } | Select-Object -First 1
-            if ($cert -eq $null) { Write-Error "Cannot find certificate $CertificateThumbprint." -ErrorAction 'Stop' }
+            if ($cert -eq $null) { Write-Error "Cannot find certificate $CertificateThumbprint." }
             $dnsNames = $cert.DnsNameList.Unicode
             $certPath = $cert.PSParentPath.Replace('Microsoft.PowerShell.Security\Certificate::LocalMachine\','')
 
             # Check if provided hostname is in the list of DNS names.
             if (($Hostname -ne '*') -and ($dnsNames -notcontains $Hostname)) {
-                Write-Error 'The provided hostname is not included on the provided certificate.' -ErrorAction 'Stop'
+                Write-Error 'The provided hostname is not included on the provided certificate.'
             }
 
             # Bind the certificate to port.
@@ -192,8 +193,12 @@ function Start-DumbHTTPListener {
                 $body = $ResponseBody
 
                 Write-Warning "`n"
-                Write-Warning 'Note that thread is blocked waiting for a request.  You need to send a valid HTTP request to stop the listener cleanly.'
-                Write-Warning "Sending `"?$StopCode=$StopCodeValue`" at the end of the URI request as a part of the query string will cause the listener to stop."
+                Write-Warning ('Note that this thread is blocked waiting for an HTTP request. You need to send a valid HTTP request to stop the listener cleanly.' +
+                               "Sending `"?$StopCode=$StopCodeValue`" at the end of the URI request as a part of the query string will cause the listener to stop.")
+                Write-Warning "`n"
+                Write-Warning 'Use the following command to stop the listener.'
+                Write-Warning "`n"
+                Write-Warning "`t`tInvoke-WebRequest -Uri '$($prefixes[0])/?$StopCode=$StopCodeValue'"
                 Write-Warning "`n"
 
                 # Wait for a request and retrieve it from the listener context as well as the response object.
@@ -206,6 +211,7 @@ function Start-DumbHTTPListener {
 
                 # If using authentication other than None or Anonymous we should be authenticated at this point.
                 if ((-not $request.IsAuthenticated) -and ($AuthenticationMethod -ne [System.Net.AuthenticationSchemes]::None) -and ($AuthenticationMethod -ne [System.Net.AuthenticationSchemes]::Anonymous)) {
+                    Write-Warning "`n"
                     Write-Warning 'Rejected request as user was not authenticated.'
                     $statusCode = 403 # Forbidden
                     $body = 'Forbidden'
@@ -213,11 +219,12 @@ function Start-DumbHTTPListener {
 
                     $identity = $context.User.Identity
 
-                    Write-Host "Request authenticated as user $($identity.Name)" -ForegroundColor Cyan
+                    Write-Host "`nRequest authenticated as user ($($identity.Name))" -ForegroundColor Cyan
 
                     # If requested, restrict all requests to users authenticated as the user that started the listener.
                     if ($RestrictRequestToRunAsUser) {
                         if ($identity.Name -ne $CurrentPrincipal.Identity.Name) {
+                            Write-Warning "`n"
                             Write-Warning "Rejected request user ($($identity.Name)) doesn't match current security principal of listener ($($CurrentPrincipal.Identity.Name))."
                             $statusCode = 401 # Unauthorized
                             $body = 'Unauthorized'
@@ -245,10 +252,10 @@ function Start-DumbHTTPListener {
 
                 # Stop the listener if requested.
                 if (($StopCodeValue.Length -eq 0) -and ($request.QueryString.Keys -contains $StopCode)) {
-                    Write-Warning 'Recieved command to exit listener.'
+                    Write-Warning 'Received command to exit listener.'
                     return
                 } elseif (($StopCodeValue.Length -gt 0) -and ($request.QueryString.Get($StopCode) -eq $StopCodeValue)) {
-                    Write-Warning 'Recieved command to exit listener.'
+                    Write-Warning 'Received command to exit listener.'
                     return
                 }
 
