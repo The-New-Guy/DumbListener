@@ -74,15 +74,11 @@ function Start-DumbHTTPListener {
 
             The value that must be associated with the StopCode to stop the listener.
 
-            For the DumbHTTPListener the StopCode must be sent via a standard HTTP request to the listener
-            as part of the query string. The StopCodeValue must be the value used in the query string. See 
-            below for an example of sending a StopCode of "StopListener" and a StopCodeValue of "Exit" to 
-            terminate the listener.
+            For the DumbHTTPListener the StopCode must be sent via a standard HTTP request to the listener as part of the query string. The StopCodeValue must be the value used in the query string. See below for an example of sending a StopCode of "StopListener" and a StopCodeValue of "Exit" to terminate the listener.
 
                 Invoke-WebRequest -Uri 'http://localhost:8888/?StopListener=Exit'
 
-            The default is an empty string and therefore the StopCode on its own is enough to terminate the
-            listener as all values provided are ignored.
+            The default is an empty string and therefore the StopCode on its own is enough to terminate the listener as all values provided are ignored.
 
         .PARAMETER RestrictRequestToRunAsUser
 
@@ -90,7 +86,7 @@ function Start-DumbHTTPListener {
 
     #>
 
-    [CmdletBinding(DefaultParameterSetName = 'ErrorRecord')]
+    [CmdletBinding()]
 
     param([ValidateNotNullOrEmpty()] [string]$Hostname = '*',
           [int]$Port = 8888,
