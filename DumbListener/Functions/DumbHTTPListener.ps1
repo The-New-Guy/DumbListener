@@ -24,13 +24,11 @@ function Start-DumbHTTPListener {
 
         .SYNOPSIS
 
-            Creates a new HTTP Listener accepting request, displaying them to console/log and responding with success (200 OK).
+            Creates a new HTTP Listener accepting request, displaying them to console and responding with success (200 OK).
 
         .DESCRIPTION
 
-            Creates a new HTTP Listener accepting request, displaying them to console/log and responding with success (200 OK).
-
-            Send a web request to allow the listener to stop since it will be blocked waiting for a request.
+            Creates a new HTTP Listener accepting request, displaying them to console and responding with success (200 OK).
 
         .PARAMETER Hostname
 
