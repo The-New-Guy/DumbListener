@@ -14,4 +14,5 @@
 # Include any functions to be defined. These functions are where most will want to add custom content.
 
 . "$PSScriptRoot\Functions\DumbHTTPListener.ps1"
+. "$PSScriptRoot\Functions\DumbUDPListener.ps1"
 . "$PSScriptRoot\Functions\General.ps1"

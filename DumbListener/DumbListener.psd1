@@ -86,6 +86,7 @@ ProcessorArchitecture = 'Amd64'
 # List of all files packaged with this module
 FileList = @(
                'DumbHTTPListener.ps1',
+               'DumbUDPListener.ps1',
                'General.ps1'
 )
 
